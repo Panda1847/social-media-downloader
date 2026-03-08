@@ -9,7 +9,7 @@
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
 ![Maintenance](https://img.shields.io/badge/maintained-yes-brightgreen.svg)
 
-**A powerful, command-line tool for downloading content from 700+ social media platforms**
+**A powerful, command-line tool for downloading content from 20+ social media platforms**
 
 [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
@@ -25,7 +25,7 @@ Built on top of industry-standard tools like `gallery-dl` and `instaloader`, thi
 
 ### ✨ Why Choose This Tool?
 
-- 🚀 **700+ Platforms Supported** - Instagram, Facebook, TikTok, Twitter, Reddit, and more
+- 🚀 **20+ Platforms Supported** - Instagram, Facebook, TikTok, Twitter, Reddit, and more
 - 📱 **Mobile-First Design** - Optimized for Android devices via Termux
 - 🎯 **Zero GUI Required** - Pure command-line interface
 - 🔒 **Privacy-Focused** - All credentials stored locally
@@ -42,7 +42,7 @@ Built on top of industry-standard tools like `gallery-dl` and `instaloader`, thi
 
 | Feature | Description |
 |---------|-------------|
-| **Multi-Platform Support** | Download from Instagram, Facebook, TikTok, Twitter, Reddit, Tumblr, and 700+ other sites |
+| **Multi-Platform Support** | Download from Instagram, Facebook, TikTok, Twitter, Reddit, Tumblr, and 20+ other sites |
 | **Content Types** | Photos, videos, stories, reels, IGTV, highlights, profile pictures, and more |
 | **Metadata Extraction** | Captions, comments, geotags, timestamps, likes, and user information |
 | **Authentication** | Login support for private profiles and restricted content |
@@ -81,7 +81,6 @@ Built on top of industry-standard tools like `gallery-dl` and `instaloader`, thi
 - ✅ Reddit, Tumblr, Flickr
 - ✅ DeviantArt, Pinterest
 - ✅ YouTube (via yt-dlp)
-- ✅ 690+ additional sites
 
 ---
 
