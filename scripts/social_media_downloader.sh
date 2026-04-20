@@ -38,6 +38,26 @@ show_banner() {
     echo ""
 }
 
+# Fallback check for dependencies
+check_and_install() {
+    local cmd=$1
+    local pkg=$2
+    if ! command -v "$cmd" &> /dev/null; then
+        print_warning "$cmd not found. Attempting to install $pkg..."
+        if command -v pkg &> /dev/null; then
+            pkg install "$pkg" -y
+        elif command -v apt &> /dev/null; then
+            sudo apt update && sudo apt install "$pkg" -y
+        elif command -v pip &> /dev/null; then
+            pip install "$pkg"
+        else
+            print_error "Could not find a package manager to install $pkg. Please install it manually."
+            return 1
+        fi
+    fi
+    return 0
+}
+
 # Function to download from Instagram
 download_instagram() {
     show_banner
@@ -74,39 +94,31 @@ download_instagram() {
     # Create output directory
     OUTPUT_DIR="$DOWNLOAD_DIR/instagram/$username"
     mkdir -p "$OUTPUT_DIR"
-    cd "$OUTPUT_DIR"
+    cd "$OUTPUT_DIR" || return
     
     print_info "Starting download to: $OUTPUT_DIR"
     echo ""
     
     # Execute download based on option
     case $option in
-        1)
-            instaloader $LOGIN_CMD "$username"
-            ;;
-        2)
-            instaloader $LOGIN_CMD --stories "$username"
-            ;;
-        3)
-            instaloader $LOGIN_CMD --stories --highlights "$username"
-            ;;
-        4)
-            instaloader $LOGIN_CMD --no-posts --no-videos "$username"
-            ;;
-        5)
-            instaloader $LOGIN_CMD --comments --geotags "$username"
-            ;;
-        *)
-            print_error "Invalid option!"
-            return
-            ;;
+        1) instaloader $LOGIN_CMD "$username" ;;
+        2) instaloader $LOGIN_CMD --stories "$username" ;;
+        3) instaloader $LOGIN_CMD --stories --highlights "$username" ;;
+        4) instaloader $LOGIN_CMD --no-posts --no-videos "$username" ;;
+        5) instaloader $LOGIN_CMD --comments --geotags "$username" ;;
+        *) print_error "Invalid option!"; return ;;
     esac
     
     if [ $? -eq 0 ]; then
         print_success "Download completed!"
-        print_info "Files saved to: $OUTPUT_DIR"
     else
-        print_error "Download failed!"
+        print_warning "Instaloader failed. Attempting fallback with gallery-dl..."
+        gallery-dl -D "$OUTPUT_DIR" "https://instagram.com/$username"
+        if [ $? -eq 0 ]; then
+            print_success "Fallback download completed!"
+        else
+            print_error "All download methods failed!"
+        fi
     fi
     
     echo ""
@@ -163,29 +175,25 @@ download_facebook() {
     
     # Execute download based on option
     case $option in
-        1)
-            eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "${profile}/photos"
-            ;;
-        2)
-            eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "${profile}/avatar"
-            ;;
-        3)
-            eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "${profile}/photos_albums"
-            ;;
-        4)
-            eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "$profile"
-            ;;
-        *)
-            print_error "Invalid option!"
-            return
-            ;;
+        1) eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "${profile}/photos" ;;
+        2) eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "${profile}/avatar" ;;
+        3) eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "${profile}/photos_albums" ;;
+        4) eval gallery-dl $LOGIN_CMD -D "$OUTPUT_DIR" "$profile" ;;
+        *) print_error "Invalid option!"; return ;;
     esac
     
     if [ $? -eq 0 ]; then
         print_success "Download completed!"
-        print_info "Files saved to: $OUTPUT_DIR"
     else
-        print_error "Download failed! Facebook blocking is common."
+        print_warning "gallery-dl failed. Attempting fallback with wget (direct link only)..."
+        print_info "Please provide a direct image/video link if you have one, or press Enter to skip."
+        read -p "Direct URL: " direct_url
+        if [ ! -z "$direct_url" ]; then
+            wget -P "$OUTPUT_DIR" "$direct_url"
+            [ $? -eq 0 ] && print_success "Direct download completed!" || print_error "Direct download failed!"
+        else
+            print_error "Download failed! Facebook blocking is common."
+        fi
     fi
     
     echo ""
@@ -231,9 +239,14 @@ download_from_url() {
     
     if [ $? -eq 0 ]; then
         print_success "Download completed!"
-        print_info "Files saved to: $OUTPUT_DIR"
     else
-        print_error "Download failed!"
+        print_warning "gallery-dl failed. Attempting fallback with yt-dlp..."
+        if check_and_install "yt-dlp" "yt-dlp"; then
+            yt-dlp -o "$OUTPUT_DIR/%(title)s.%(ext)s" "$url"
+            [ $? -eq 0 ] && print_success "yt-dlp download completed!" || print_error "All methods failed!"
+        else
+            print_error "Download failed and yt-dlp is not available."
+        fi
     fi
     
     echo ""
@@ -273,9 +286,14 @@ download_tiktok() {
     
     if [ $? -eq 0 ]; then
         print_success "Download completed!"
-        print_info "Files saved to: $OUTPUT_DIR"
     else
-        print_error "Download failed!"
+        print_warning "gallery-dl failed. Attempting fallback with yt-dlp..."
+        if check_and_install "yt-dlp" "yt-dlp"; then
+            yt-dlp -o "$OUTPUT_DIR/%(title)s.%(ext)s" "$url"
+            [ $? -eq 0 ] && print_success "yt-dlp download completed!" || print_error "All methods failed!"
+        else
+            print_error "Download failed!"
+        fi
     fi
     
     echo ""
@@ -320,9 +338,14 @@ download_twitter() {
     
     if [ $? -eq 0 ]; then
         print_success "Download completed!"
-        print_info "Files saved to: $OUTPUT_DIR"
     else
-        print_error "Download failed!"
+        print_warning "gallery-dl failed. Attempting fallback with yt-dlp..."
+        if check_and_install "yt-dlp" "yt-dlp"; then
+            yt-dlp -o "$OUTPUT_DIR/%(title)s.%(ext)s" "$url"
+            [ $? -eq 0 ] && print_success "yt-dlp download completed!" || print_error "All methods failed!"
+        else
+            print_error "Download failed!"
+        fi
     fi
     
     echo ""
@@ -355,7 +378,11 @@ view_downloads() {
     echo ""
     echo "Directory structure:"
     echo "-------------------"
-    tree -L 2 "$DOWNLOAD_DIR" 2>/dev/null || ls -lh "$DOWNLOAD_DIR"
+    if command -v tree &> /dev/null; then
+        tree -L 2 "$DOWNLOAD_DIR"
+    else
+        ls -R "$DOWNLOAD_DIR" | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+    fi
     
     echo ""
     read -p "Press Enter to continue..."
@@ -422,16 +449,26 @@ main_menu() {
 
 # Check if required tools are installed
 check_requirements() {
+    local missing=0
+    
     if ! command -v gallery-dl &> /dev/null; then
-        print_error "gallery-dl is not installed!"
-        echo "Please run: pip install gallery-dl"
-        exit 1
+        print_warning "gallery-dl is not installed!"
+        missing=1
     fi
     
     if ! command -v instaloader &> /dev/null; then
-        print_error "instaloader is not installed!"
-        echo "Please run: pip install instaloader"
-        exit 1
+        print_warning "instaloader is not installed!"
+        missing=1
+    fi
+    
+    if [ $missing -eq 1 ]; then
+        print_info "Attempting to install missing requirements..."
+        if command -v pip &> /dev/null; then
+            pip install gallery-dl instaloader requests yt-dlp
+        else
+            print_error "pip not found. Please install requirements manually: pip install gallery-dl instaloader requests yt-dlp"
+            exit 1
+        fi
     fi
 }
 

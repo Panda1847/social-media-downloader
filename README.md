@@ -11,7 +11,7 @@
 
 **A powerful, command-line tool for downloading content from 20+ social media platforms**
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Documentation](#-documentation) • [Contributing](#-contributing) • [**Beginner's Guide**](BEGINNER_GUIDE.md)
 
 </div>
 
