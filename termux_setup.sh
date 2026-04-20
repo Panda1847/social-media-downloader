@@ -27,16 +27,13 @@ pkg install wget curl -y
 
 # Install Python packages
 echo "[5/6] Installing gallery-dl and instaloader..."
-pip install --upgrade pip
-pip install gallery-dl instaloader requests
+# Note: In Termux, 'pip install --upgrade pip' can sometimes cause issues.
+# We install the core tools directly.
+pip install gallery-dl instaloader requests yt-dlp
 
 # Create directories
 echo "[6/6] Creating download directories..."
 mkdir -p ~/Downloads/social_media
-mkdir -p ~/Downloads/instagram
-mkdir -p ~/Downloads/facebook
-mkdir -p ~/Downloads/tiktok
-mkdir -p ~/Downloads/twitter
 
 echo ""
 echo "================================================"
@@ -44,6 +41,6 @@ echo "✅ Setup Complete!"
 echo "================================================"
 echo ""
 echo "Next steps:"
-echo "1. Run: chmod +x social_media_downloader.sh"
+echo "1. Run: chmod +x *.sh"
 echo "2. Run: ./social_media_downloader.sh"
 echo ""

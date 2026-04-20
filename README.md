@@ -109,11 +109,11 @@ git clone https://github.com/Panda1847/social-media-downloader.git
 cd social-media-downloader
 
 # 4. Run the setup script (one-time only)
-chmod +x scripts/termux_setup.sh
-./scripts/termux_setup.sh
+chmod +x termux_setup.sh
+./termux_setup.sh
 
 # 5. Start the downloader
-./scripts/social_media_downloader.sh
+./social_media_downloader.sh
 ```
 
 ### For Linux
@@ -142,7 +142,7 @@ chmod +x scripts/social_media_downloader.sh
 Launch the interactive menu for a guided experience:
 
 ```bash
-./scripts/social_media_downloader.sh
+./social_media_downloader.sh
 ```
 
 **Menu Options:**
@@ -169,7 +169,7 @@ Choose a platform:
 For fast, one-command downloads:
 
 ```bash
-./scripts/quick_download.sh "https://instagram.com/username"
+./quick_download.sh "https://instagram.com/username"
 ```
 
 ### Manual Commands

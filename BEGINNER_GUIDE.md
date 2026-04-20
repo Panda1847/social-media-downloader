@@ -9,7 +9,7 @@ Welcome! This guide is designed for "noobs" to help you use this tool easily and
 ### 1. First Time Setup
 If you just downloaded this, run the setup script to install everything you need:
 ```bash
-cd social-media-downloader/scripts
+cd social-media-downloader
 chmod +x *.sh
 ./termux_setup.sh
 ```
@@ -58,7 +58,7 @@ Everything you download goes here:
 
 ---
 
-## 🛡️ Robust Features (New!)
+## 🛡️ Robust Features
 - **Fallback Logic**: If the main tool fails, it automatically tries a second tool (like `yt-dlp`) to get your file.
 - **Auto-Install**: If a tool is missing, the script will try to install it for you automatically.
 
